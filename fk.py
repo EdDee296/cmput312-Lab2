@@ -4,7 +4,7 @@ from math import cos, sin, radians, sqrt, atan2, degrees
 import time, sys
 
 L1 = 13
-L2 = 10
+L2 = 9
 
 # Motors
 joint1 = LargeMotor(OUTPUT_A)

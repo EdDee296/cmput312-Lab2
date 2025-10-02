@@ -8,7 +8,7 @@ from fk import reset_angles, debug_print
 
 # Link lengths 
 L1 = 13
-L2 = 10
+L2 = 9
 
 SPEED = 90
 
