@@ -160,7 +160,13 @@ def measure_angle():
 
 
 def main():
-    #reset_angles()
+    reset_angles()
+    theta1 = 30
+    theta2 = 30
+    
+    x,y = move_and_measure(theta1, theta2)
+    
+    debug_print(f"Current position: x={x:.2f}, y={y:.2f}")
     
     pass
     
