@@ -3,8 +3,7 @@ from ev3dev2.sensor.lego import TouchSensor
 from math import cos, sin, radians, sqrt, atan2, degrees
 import time, sys
 
-# Link lengths (example: 10 cm each)
-L1 = 10
+L1 = 13
 L2 = 10
 
 # Motors

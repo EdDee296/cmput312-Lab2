@@ -6,8 +6,8 @@ import time, sys
 
 from fk import reset_angles, debug_print
 
-# Link lengths (example: 10 cm each)
-L1 = 10
+# Link lengths 
+L1 = 13
 L2 = 10
 
 SPEED = 90
