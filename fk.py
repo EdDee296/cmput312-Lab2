@@ -1,7 +1,8 @@
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedDPS
 from ev3dev2.sensor.lego import TouchSensor
 from math import cos, sin, radians, sqrt, atan2, degrees
-import time, sys
+import time
+import sys
 
 L1 = 13
 L2 = 9
@@ -16,6 +17,7 @@ touch = TouchSensor()  # Touch sensor for recording points
 # Speed DPS
 SPEED = 90
 
+
 def debug_print(*args, **kwargs):
     '''Print debug messages to stderr.
 
@@ -23,10 +25,27 @@ def debug_print(*args, **kwargs):
     '''
     print(*args, **kwargs, file=sys.stderr)
 
+
 def reset_angles():
+    
     joint1.reset()
     joint2.reset()
+    
+    debug_print(joint1.position, joint2.position)
 
+def move_to_zero():
+    joint1.on_to_position(SpeedDPS(SPEED), 0)
+    joint2.on_to_position(SpeedDPS(SPEED), 0)
+    reset_angles()
+    
+def calibrate_zero():
+    """Manually set current position as zero"""
+    debug_print("Position arm at zero configuration...")
+    debug_print("Press touch sensor when ready")
+    wait_for_touch()
+    joint1.reset()
+    joint2.reset()
+    debug_print("Zero position calibrated!")
 
 def forward_kinematics(theta1, theta2):
     """Return (x,y) of end effector given angles in degrees"""
@@ -35,6 +54,7 @@ def forward_kinematics(theta1, theta2):
     x = L1*cos(t1) + L2*cos(t1+t2)
     y = L1*sin(t1) + L2*sin(t1+t2)
     return (x, y)
+
 
 def move_and_measure(theta1_cmd, theta2_cmd):
     # Move to commanded angles
@@ -55,7 +75,7 @@ def move_and_measure(theta1_cmd, theta2_cmd):
     debug_print("Expected:", expected)
     debug_print("Actual:  ", actual)
     debug_print("Error (cm):", error)
-    
+
     return actual
 
 
@@ -68,6 +88,11 @@ def get_current_position():
 
 def wait_for_touch():
     """Wait for touch sensor to be pressed"""
+    joint1.stop_action = 'coast'
+    joint2.stop_action = 'coast'
+    joint1.stop()
+    joint2.stop()
+    time.sleep(0.5)
     debug_print("Press touch sensor...")
     while not touch.is_pressed:
         time.sleep(0.1)
@@ -113,17 +138,17 @@ def measure_distance():
     debug_print("Move to first point")
     wait_for_touch()
     p1 = get_current_position()
-    debug_print(f"Point 1: ({p1[0]:.2f}, {p1[1]:.2f})")
+    debug_print("Point 1: ({:.2f}, {:.2f})".format(p1[0], p1[1]))
 
     # Record second point
     debug_print("Move to second point")
     wait_for_touch()
     p2 = get_current_position()
-    debug_print(f"Point 2: ({p2[0]:.2f}, {p2[1]:.2f})")
+    debug_print("Point 2: ({:.2f}, {:.2f})".format(p2[0], p2[1]))
 
     # Calculate and display distance
     distance = calculate_distance(p1, p2)
-    debug_print(f"DISTANCE: {distance:.2f} cm")
+    debug_print("DISTANCE: {:.2f} cm".format(distance))
     debug_print("=" * 28)
 
     return distance
@@ -137,40 +162,37 @@ def measure_angle():
     debug_print("Move to intersection")
     wait_for_touch()
     p1 = get_current_position()
-    debug_print(f"Intersection: ({p1[0]:.2f}, {p1[1]:.2f})")
+    debug_print("Intersection: ({:.2f}, {:.2f})".format(p1[0], p1[1]))
 
     # Record second point (on first line)
     debug_print("Move to point on line 1")
     wait_for_touch()
     p2 = get_current_position()
-    debug_print(f"Point 2: ({p2[0]:.2f}, {p2[1]:.2f})")
+    debug_print("Point 2: ({:.2f}, {:.2f})".format(p2[0], p2[1]))
 
     # Record third point (on second line)
     debug_print("Move to point on line 2")
     wait_for_touch()
     p3 = get_current_position()
-    debug_print(f"Point 3: ({p3[0]:.2f}, {p3[1]:.2f})")
+    debug_print("Point 3: ({:.2f}, {:.2f})".format(p3[0], p3[1]))
 
     # Calculate and display angle
     angle = calculate_angle(p1, p2, p3)
-    debug_print(f"ANGLE: {angle:.2f} degrees")
+    debug_print("ANGLE: {:.2f} degrees".format(angle))
     debug_print("=" * 25)
 
     return angle
 
-
 def main():
-    reset_angles()
-    theta1 = 30
-    theta2 = 30
-    
-    x,y = move_and_measure(theta1, theta2)
-    
-    debug_print(f"Current position: x={x:.2f}, y={y:.2f}")
-    
-    pass
-    
-    
+    #move_to_zero()
+    time.sleep(2)
+    # theta1 = 90
+    # theta2 = 90
+    # move_and_measure(theta1, theta2)
+    #measure_distance()
+    #measure_angle()
+    debug_print("End of program")
+
 
 # Main program
 if __name__ == "__main__":
