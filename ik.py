@@ -2,7 +2,7 @@ from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B, SpeedDPS
 from math import cos, sin, radians, sqrt, atan2, degrees, acos
 import time
 
-from fk import debug_print, wait_for_touch
+from fk import debug_print, wait_for_touch, get_current_position
 
 # Link lengths
 L1 = 13
@@ -122,15 +122,41 @@ def newton_method(x, y, initial_guess=(0, 0), tol=1e-2, max_iter=100):
             i+1, theta1, theta2, error))
 
     raise ValueError("Newton did not converge after {} iterations".format(max_iter))
+
+
+def midpoint():
+    calibrate_zero()
+    """Measure distance between two points"""
+    debug_print("=== DISTANCE MEASUREMENT ===")
+
+    # Record first point
+    debug_print("Move to first point")
+    wait_for_touch()
+    p1 = get_current_position()
+    debug_print("Point 1: ({:.2f}, {:.2f})".format(p1[0], p1[1]))
+
+    # Record second point
+    debug_print("Move to second point")
+    wait_for_touch()
+    p2 = get_current_position()
+    debug_print("Point 2: ({:.2f}, {:.2f})".format(p2[0], p2[1]))
+
+    #Find midpoint
+    mid_x = (p1[0] + p2[0]) / 2
+    mid_y = (p1[1] + p2[1]) / 2
+    debug_print("MIDPOINT: ({:.2f}, {:.2f})".format(mid_x, mid_y))
+
+    return (mid_x, mid_y)
+
+
 # ---------------- Main ----------------
 def main():
-    calibrate_zero()
-    analytical_method(10, 10)
-    time.sleep(2)
-    analytical_method(10,-10)
-    time.sleep(2)
-    analytical_method(22,0)
     #newton_method(10,10, (10,10))
+    x,y = midpoint()
+    #Move to midpoint
+    analytical_method(x, y)
+    newton_method(x, y, (0,0))
+    
 
 if __name__ == "__main__":
     main()
