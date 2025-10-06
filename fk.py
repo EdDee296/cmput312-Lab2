@@ -27,25 +27,34 @@ def debug_print(*args, **kwargs):
 
 
 def reset_angles():
-    
     joint1.reset()
     joint2.reset()
-    
     debug_print(joint1.position, joint2.position)
 
-def move_to_zero():
-    joint1.on_to_position(SpeedDPS(SPEED), 0)
-    joint2.on_to_position(SpeedDPS(SPEED), 0)
-    reset_angles()
+
+def wait_for_touch():
+    """Wait for touch sensor to be pressed"""
+    joint1.stop_action = 'coast'
+    joint2.stop_action = 'coast'
+    joint1.stop()
+    joint2.stop()
+    time.sleep(0.5)
+    debug_print("Press touch sensor...")
+    while not touch.is_pressed:
+        time.sleep(0.1)
+    # Wait for release
+    while touch.is_pressed:
+        time.sleep(0.1)
+   
     
 def calibrate_zero():
     """Manually set current position as zero"""
     debug_print("Position arm at zero configuration...")
     debug_print("Press touch sensor when ready")
     wait_for_touch()
-    joint1.reset()
-    joint2.reset()
+    reset_angles()
     debug_print("Zero position calibrated!")
+
 
 def forward_kinematics(theta1, theta2):
     """Return (x,y) of end effector given angles in degrees"""
@@ -57,16 +66,17 @@ def forward_kinematics(theta1, theta2):
 
 
 def move_and_measure(theta1_cmd, theta2_cmd):
+    calibrate_zero()
     # Move to commanded angles
-    joint1.on_to_position(SpeedDPS(90), theta1_cmd)
-    joint2.on_to_position(SpeedDPS(90), theta2_cmd)
+    joint1.on_to_position(SpeedDPS(SPEED), theta1_cmd)
+    joint2.on_to_position(SpeedDPS(SPEED), -theta2_cmd)
 
     # Read actual encoder positions
     theta1_actual = joint1.position
     theta2_actual = joint2.position
 
     # Compute expected vs actual end effector position
-    expected = forward_kinematics(theta1_cmd, theta2_cmd)
+    expected = forward_kinematics(theta1_cmd, -theta2_cmd)
     actual = forward_kinematics(theta1_actual, theta2_actual)
 
     # Compute Euclidean error
@@ -84,21 +94,6 @@ def get_current_position():
     theta1 = joint1.position
     theta2 = joint2.position
     return forward_kinematics(theta1, theta2)
-
-
-def wait_for_touch():
-    """Wait for touch sensor to be pressed"""
-    joint1.stop_action = 'coast'
-    joint2.stop_action = 'coast'
-    joint1.stop()
-    joint2.stop()
-    time.sleep(0.5)
-    debug_print("Press touch sensor...")
-    while not touch.is_pressed:
-        time.sleep(0.1)
-    # Wait for release
-    while touch.is_pressed:
-        time.sleep(0.1)
 
 
 def calculate_distance(p1, p2):
@@ -131,6 +126,7 @@ def calculate_angle(p1, p2, p3):
 
 
 def measure_distance():
+    calibrate_zero()
     """Measure distance between two points"""
     debug_print("=== DISTANCE MEASUREMENT ===")
 
@@ -155,6 +151,7 @@ def measure_distance():
 
 
 def measure_angle():
+    calibrate_zero()
     """Measure angle between two lines"""
     debug_print("=== ANGLE MEASUREMENT ===")
 
@@ -184,13 +181,11 @@ def measure_angle():
     return angle
 
 def main():
-    #move_to_zero()
-    time.sleep(2)
-    # theta1 = 90
-    # theta2 = 90
-    # move_and_measure(theta1, theta2)
-    #measure_distance()
-    #measure_angle()
+    theta1 = 90
+    theta2 = 90
+    move_and_measure(theta1, theta2)
+    measure_distance()
+    measure_angle()
     debug_print("End of program")
 
 

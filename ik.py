@@ -44,6 +44,7 @@ def move_to_angles(theta1, theta2):
 # ---------------- Inverse Kinematics ----------------
 def analytical_method(x, y):
     """Analytical IK solution (elbow-down)"""
+    calibrate_zero()
     # Law of cosines
     D = (x**2 + y**2 - L1**2 - L2**2) / (2 * L1 * L2)
     if D < -1 or D > 1:
@@ -63,9 +64,18 @@ def analytical_method(x, y):
 
     return (theta1_deg, theta2_deg)
 
+def normalize_angle(angle):
+    """Normalize angle to [-180, 180] range"""
+    while angle > 180:
+        angle -= 360
+    while angle < -180:
+        angle += 360
+    return angle
+
 
 def newton_method(x, y, initial_guess=(0, 0), tol=1e-2, max_iter=100):
     """Numerical IK using Newton's method"""
+    calibrate_zero()
     theta1, theta2 = initial_guess
     debug_print("Initial guess: t1={}, t2={}".format(theta1, theta2))
 
@@ -74,6 +84,13 @@ def newton_method(x, y, initial_guess=(0, 0), tol=1e-2, max_iter=100):
         t2 = radians(theta2)
         fx = L1*cos(t1) + L2*cos(t1+t2) - x
         fy = L1*sin(t1) + L2*sin(t1+t2) - y
+
+        # Check convergence FIRST
+        error = sqrt(fx**2 + fy**2)
+        if error < tol:
+            debug_print("Converged! t1={:.2f}, t2={:.2f}, Error: {:.4f}".format(theta1, theta2, error))
+            move_to_angles(theta1, theta2)  # Move only once at the end
+            return (theta1, theta2)
 
         # Jacobian
         j11 = -L1*sin(t1) - L2*sin(t1+t2)
@@ -96,24 +113,19 @@ def newton_method(x, y, initial_guess=(0, 0), tol=1e-2, max_iter=100):
 
         theta1 -= degrees(dtheta1)
         theta2 -= degrees(dtheta2)
+        
+        # Normalize angles to prevent wrap-around
+        theta1 = normalize_angle(theta1)
+        theta2 = normalize_angle(theta2)
 
-        debug_print("Iter {}: t1={:.2f}, t2={:.2f}".format(
-            i+1, theta1, theta2))
+        debug_print("Iter {}: t1={:.2f}, t2={:.2f}, error={:.4f}".format(
+            i+1, theta1, theta2, error))
 
-        move_to_angles(theta1, theta2)
-
-        if sqrt(fx**2 + fy**2) < tol:
-            return (theta1, theta2)
-
-    raise ValueError("Newton did not converge")
-
-
+    raise ValueError("Newton did not converge after {} iterations".format(max_iter))
 # ---------------- Main ----------------
 def main():
-    calibrate_zero()
-    time.sleep(1)
-    analytical_method(10, 10)
-
+    #analytical_method(10, 10)
+    newton_method(10,10, (10,10))
 
 if __name__ == "__main__":
     main()
