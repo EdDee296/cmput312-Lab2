@@ -44,7 +44,7 @@ def move_to_angles(theta1, theta2):
 # ---------------- Inverse Kinematics ----------------
 def analytical_method(x, y):
     """Analytical IK solution (elbow-down)"""
-    calibrate_zero()
+    #calibrate_zero()
     # Law of cosines
     D = (x**2 + y**2 - L1**2 - L2**2) / (2 * L1 * L2)
     if D < -1 or D > 1:
@@ -124,8 +124,13 @@ def newton_method(x, y, initial_guess=(0, 0), tol=1e-2, max_iter=100):
     raise ValueError("Newton did not converge after {} iterations".format(max_iter))
 # ---------------- Main ----------------
 def main():
-    #analytical_method(10, 10)
-    newton_method(10,10, (10,10))
+    calibrate_zero()
+    analytical_method(10, 10)
+    time.sleep(2)
+    analytical_method(10,-10)
+    time.sleep(2)
+    analytical_method(22,0)
+    #newton_method(10,10, (10,10))
 
 if __name__ == "__main__":
     main()

@@ -64,36 +64,35 @@ def forward_kinematics(theta1, theta2):
     y = L1*sin(t1) + L2*sin(t1+t2)
     return (x, y)
 
+def get_current_position():
+    """Get current end effector position"""
+    theta1 = joint1.position
+    theta2 = -joint2.position  # Invert because motor is upside down
+    return forward_kinematics(theta1, theta2)
+
 
 def move_and_measure(theta1_cmd, theta2_cmd):
     calibrate_zero()
     # Move to commanded angles
     joint1.on_to_position(SpeedDPS(SPEED), theta1_cmd)
-    joint2.on_to_position(SpeedDPS(SPEED), -theta2_cmd)
+    joint2.on_to_position(SpeedDPS(SPEED), -theta2_cmd)  # Already inverted for command
 
     # Read actual encoder positions
     theta1_actual = joint1.position
-    theta2_actual = joint2.position
+    theta2_actual = -joint2.position  # Invert when reading
 
     # Compute expected vs actual end effector position
-    expected = forward_kinematics(theta1_cmd, -theta2_cmd)
+    expected = forward_kinematics(theta1_cmd, theta2_cmd)  # Use positive theta2
     actual = forward_kinematics(theta1_actual, theta2_actual)
 
     # Compute Euclidean error
     error = sqrt((expected[0]-actual[0])**2 + (expected[1]-actual[1])**2)
 
-    debug_print("Expected:", expected)
-    debug_print("Actual:  ", actual)
-    debug_print("Error (cm):", error)
+    debug_print("Expected: ({:.2f}, {:.2f})".format(expected[0], expected[1]))
+    debug_print("Actual:   ({:.2f}, {:.2f})".format(actual[0], actual[1]))
+    debug_print("Error (cm): {:.2f}".format(error))
 
     return actual
-
-
-def get_current_position():
-    """Get current end effector position"""
-    theta1 = joint1.position
-    theta2 = joint2.position
-    return forward_kinematics(theta1, theta2)
 
 
 def calculate_distance(p1, p2):
@@ -181,11 +180,11 @@ def measure_angle():
     return angle
 
 def main():
-    theta1 = 90
-    theta2 = 90
-    move_and_measure(theta1, theta2)
+    # theta1 = 90
+    # theta2 = 90
+    # move_and_measure(theta1, theta2)
     measure_distance()
-    measure_angle()
+    # measure_angle()
     debug_print("End of program")
 
 
