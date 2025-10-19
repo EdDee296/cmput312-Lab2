@@ -7,7 +7,7 @@ from fk import debug_print, wait_for_touch, get_current_position
 # Link lengths
 L1 = 13
 L2 = 9
-SPEED = 90
+SPEED = 30
 
 # Motors
 joint1 = LargeMotor(OUTPUT_A)
@@ -39,7 +39,7 @@ def move_to_angles(theta1, theta2):
     joint1.on_to_position(SpeedDPS(SPEED), theta1 + offset1)
     joint2.on_to_position(SpeedDPS(SPEED), -theta2 + offset2)
     time.sleep(1)
-
+    
 
 # ---------------- Inverse Kinematics ----------------
 def analytical_method(x, y):
@@ -47,9 +47,11 @@ def analytical_method(x, y):
     #calibrate_zero()
     # Law of cosines
     D = (x**2 + y**2 - L1**2 - L2**2) / (2 * L1 * L2)
-    if D < -1 or D > 1:
+    
+    if D < -1.01 or D > 1.01:
         raise ValueError("Point out of reach")
-
+    
+    D = max(-1.0, min(1.0, D))
     theta2 = -acos(D)
     theta1 = atan2(y, x) - atan2(L2 * sin(theta2), L1 + L2 * cos(theta2))
 
@@ -75,7 +77,7 @@ def normalize_angle(angle):
 
 def newton_method(x, y, initial_guess=(0, 0), tol=1e-2, max_iter=100):
     """Numerical IK using Newton's method"""
-    calibrate_zero()
+    # calibrate_zero()
     theta1, theta2 = initial_guess
     debug_print("Initial guess: t1={}, t2={}".format(theta1, theta2))
 
@@ -154,8 +156,8 @@ def main():
     #newton_method(10,10, (10,10))
     x,y = midpoint()
     #Move to midpoint
-    analytical_method(x, y)
-    newton_method(x, y, (0,0))
+    # analytical_method(x, y)
+    newton_method(x, y, (12,12))
     
 
 if __name__ == "__main__":

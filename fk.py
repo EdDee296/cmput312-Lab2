@@ -180,8 +180,8 @@ def measure_angle():
     return angle
 
 def main():
-    # theta1 = 90
-    # theta2 = 90
+    # theta1 = 45
+    # theta2 = -45
     # move_and_measure(theta1, theta2)
     measure_distance()
     # measure_angle()
