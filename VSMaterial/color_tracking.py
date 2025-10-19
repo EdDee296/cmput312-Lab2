@@ -86,7 +86,7 @@ class Tracker:
         if color == 'g':
             # Green Tracking
             mask = cv2.inRange(hsv, greenLowMask, greenHighMask)
-        # Perform erosion and dilation in the image (in 11x11 pixels squares) in order to reduce the "blips" on the mask
+        # Perform erosion and dilation in the image (in 7x7 pixels squares) in order to reduce the "blips" on the mask
         mask = cv2.erode(mask, np.ones((7, 7),np.uint8), iterations=2)
         mask = cv2.dilate(mask, np.ones((7, 7),np.uint8), iterations=3)
         # Mask the blurred image so that we only consider the areas with the desired colour
@@ -113,11 +113,11 @@ class Tracker:
         
             
         
-
-print("Tracker Setup")
-tracker = Tracker('g', 'r')
-print("Moving on")
-while True:
-    print("Point is at: "+str(tracker.point))
-    print("Goal is at: "+str(tracker.goal))
-    time.sleep(2)
+if __name__ == "__main__":
+    print("Tracker Setup")
+    tracker = Tracker('g', 'r')
+    print("Moving on")
+    while True:
+        print("Point is at: "+str(tracker.point))
+        print("Goal is at: "+str(tracker.goal))
+        time.sleep(2)

@@ -6,6 +6,7 @@ import os
 import time
 from ev3dev2.motor import LargeMotor, OUTPUT_A, OUTPUT_B
 from ev3dev2.motor import SpeedPercent
+from fk import calibrate_zero
 
 # This class handles the client side of communication. It has a set of predefined messages to send to the server as well as functionality to poll and decode data.
 class Client:
@@ -89,7 +90,7 @@ class Client:
 host = "169.254.207.188"
 port = 9999
 client = Client(host, port)
-
+calibrate_zero()
 while True:
     data = client.pollData()
     

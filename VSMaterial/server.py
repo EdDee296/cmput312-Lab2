@@ -50,11 +50,10 @@ class Server:
         reply = self.cs.recv(128).decode("UTF-8")
         print("Safety mode disabled, response: " + reply)
 
-host = "169.254.207.188"
-port = 9999
-server = Server(host, port)
-queue = Queue()
-
-server.sendDisableSafetyMode()
-
-# 
+if __name__ == "__main__":
+    host = "169.254.207.188"
+    port = 9999
+    server = Server(host, port)
+    queue = Queue()
+    
+    server.sendDisableSafetyMode()
