@@ -15,7 +15,7 @@ vl = 'V Low'
 vh = 'V High'
 
 # set up for video capture on camera 0
-cap = cv.VideoCapture(1)
+cap = cv.VideoCapture(0)
 
 # create window for the slidebars
 cv.namedWindow(barsWindow, flags = cv.WINDOW_AUTOSIZE)

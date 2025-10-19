@@ -11,8 +11,8 @@ import time
 
 #####HSV Colour Ranges#################
 #If the ball is red (0-10) or (170-180)
-redLowMask = (0,50,50)
-redHighMask = (10, 255, 255)
+redLowMask = (144, 113, 200)
+redHighMask = (179, 255, 255)
 
 #If the ball is blue
 blueLowMask = (100, 150, 0)
@@ -23,8 +23,8 @@ orangeLowMask = (5, 50, 50)
 orangeHighMask = (20, 255, 255)
 
 #If the ball is green
-greenLowMask= (90, 50, 50)
-greenHighMask= (150, 255, 255)
+greenLowMask= (32, 54, 0)
+greenHighMask= (88, 248, 255)
 ########################################
 
 class Tracker:
@@ -87,15 +87,15 @@ class Tracker:
             # Green Tracking
             mask = cv2.inRange(hsv, greenLowMask, greenHighMask)
         # Perform erosion and dilation in the image (in 11x11 pixels squares) in order to reduce the "blips" on the mask
-        mask = cv2.erode(mask, np.ones((11, 11),np.uint8), iterations=2)
-        mask = cv2.dilate(mask, np.ones((11, 11),np.uint8), iterations=5)
+        mask = cv2.erode(mask, np.ones((7, 7),np.uint8), iterations=2)
+        mask = cv2.dilate(mask, np.ones((7, 7),np.uint8), iterations=3)
         # Mask the blurred image so that we only consider the areas with the desired colour
         masked_blurred = cv2.bitwise_and(blurred,blurred, mask= mask)
         # masked_blurred = cv2.bitwise_and(frame,frame, mask= mask)
         # Convert the masked image to gray scale (Required by HoughCircles routine)
         result = cv2.cvtColor(masked_blurred, cv2.COLOR_BGR2GRAY)
         # Detect circles in the image using Canny edge and Hough transform
-        circles = cv2.HoughCircles(result, cv2.HOUGH_GRADIENT, 1.5, 300, param1=100, param2=20, minRadius=20, maxRadius=200)
+        circles = cv2.HoughCircles(result, cv2.HOUGH_GRADIENT, 1.5, 200, param1=80, param2=25, minRadius=15, maxRadius=150)
         return circles
             
     def DrawCircles(self, frame, circles, dotColor):
