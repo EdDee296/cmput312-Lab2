@@ -3,27 +3,28 @@ sys.path.append('..')
 from ik import analytical_method, newton_method
 from fk import get_current_position, wait_for_touch, debug_print, calibrate_zero
 import time
-
+//have to also try the numerical method
 def draw_line(p1, p2, num_points=10):
     """Draw straight line from p1 to p2"""
     x1, y1 = p1
     x2, y2 = p2
     
     debug_print("Drawing line from ({:.2f}, {:.2f}) to ({:.2f}, {:.2f})".format(x1, y1, x2, y2))
-    
+    //split the path into many subpaths
     for i in range(1, num_points + 1):
         t = i / num_points
         x = x1 + t * (x2 - x1)
         y = y1 + t * (y2 - y1)
         
         try:
+            //move just a fraction of the path so it appears straight
             analytical_method(x, y)
             a, b = get_current_position()
             debug_print("Expected to move to ({:.2f}, {:.2f}), actually at ({:.2f}, {:.2f})".format(x, y, a, b))
         except ValueError as e:
             debug_print("Point ({:.2f}, {:.2f}) unreachable: {}".format(x, y, e))
             break
-
+//functions record the start point and the end points via touch sensor and calls a function to draw a straight line
 def record_and_draw():
     from ik import joint1, joint2
     
